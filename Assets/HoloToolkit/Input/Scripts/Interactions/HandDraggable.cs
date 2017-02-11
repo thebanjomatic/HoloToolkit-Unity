@@ -40,6 +40,18 @@ namespace HoloToolkit.Unity.InputModule
 
         public bool IsDraggingEnabled = true;
 
+        [Header("Smoothing")]
+        [Tooltip("Controls whether or not smoothing is applied to changes in position and rotation.")]
+        public bool ApplySmoothing = true;
+
+        [Tooltip("Interpolation speed when moving the HostTransform when smoothing is enabled.")]
+        [Range(1, 20)]
+        public float PositionLerpPower = 10;
+
+        [Tooltip("Interpolation speed when rotating the HostTransform when smoothing is enabled.")]
+        [Range(1, 20)]
+        public float RotationLerpPower = 10;
+
         private Camera mainCamera;
         private bool isDragging;
         private bool isGazed;
@@ -201,8 +213,16 @@ namespace HoloToolkit.Unity.InputModule
             }
 
             // Apply Final Position
-            HostTransform.position = draggingPosition + mainCamera.transform.TransformDirection(objRefGrabPoint);
-            HostTransform.rotation = draggingRotation;
+            Vector3 targetPosition = draggingPosition + mainCamera.transform.TransformDirection(objRefGrabPoint);
+            if (ApplySmoothing)
+            {
+                HostTransform.position = Vector3.Lerp(HostTransform.position, targetPosition, Time.deltaTime * PositionLerpPower);
+                HostTransform.rotation = Quaternion.Lerp(HostTransform.rotation, draggingRotation, Time.deltaTime * RotationLerpPower);
+            } else
+            {
+                HostTransform.position = targetPosition;
+                HostTransform.rotation = draggingRotation;
+            }
 
             if (IsKeepUpright)
             {
