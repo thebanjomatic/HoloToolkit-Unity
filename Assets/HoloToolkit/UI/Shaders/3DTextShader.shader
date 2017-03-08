@@ -55,6 +55,7 @@
                     float4 vertex : POSITION;
                     half4 color : COLOR;
                     float2 texcoord : TEXCOORD0;
+                    UNITY_VERTEX_INPUT_INSTANCE_ID
                 };
 
                 struct v2f
@@ -62,6 +63,7 @@
                     float4 vertex : POSITION;
                     half4 color : COLOR;
                     float2 texcoord : TEXCOORD0;
+                    UNITY_VERTEX_OUTPUT_STEREO
                 };
 
                 sampler2D _MainTex;
@@ -70,6 +72,7 @@
 
                 v2f vert (appdata_t v)
                 {
+                    UNITY_SETUP_INSTANCE_ID(v);
                     v2f o;
                     o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
                     o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
@@ -77,6 +80,7 @@
                     #ifdef UNITY_HALF_TEXEL_OFFSET
                     o.vertex.xy += (_ScreenParams.zw-1.0)*float2(-1,1);
                     #endif
+                    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                     return o;
                 }
 
